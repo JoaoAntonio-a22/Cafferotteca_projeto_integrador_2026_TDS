@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrinho de Compras - Café Artesanal</title>
+    <link rel="stylesheet" href="/static/css/cart.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="cart-header">
+        <div class="header-content">
+            <div class="logo">
+                <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 5C15 5 12 8 12 12V20C12 24 15 27 20 27C25 27 28 24 28 20V12C28 8 25 5 20 5Z" stroke="#F0E2C9" stroke-width="2"/>
+                    <path d="M12 20C12 20 10 22 10 25C10 28 12 30 15 30H25C28 30 30 28 30 25C30 22 28 20 28 20" stroke="#F0E2C9" stroke-width="2"/>
+                    <line x1="8" y1="12" x2="32" y2="12" stroke="#F0E2C9" stroke-width="2"/>
+                    <path d="M20 30V35" stroke="#F0E2C9" stroke-width="2"/>
+                    <path d="M15 35H25" stroke="#F0E2C9" stroke-width="2"/>
+                </svg>
+                <h1>Café Artesanal</h1>
+            </div>
+            <nav class="breadcrumb">
+                <a href="/menu">Cardápio</a>
+                <span>›</span>
+                <span>Carrinho</span>
+            </nav>
+        </div>
+    </header>
+
+    <main class="cart-container">
+        <div class="cart-content">
+            <!-- Coluna Esquerda -->
+            <div class="cart-items-section">
+                <div class="section-title">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="8" cy="21" r="1"></circle>
+                        <circle cx="19" cy="21" r="1"></circle>
+                        <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path>
+                    </svg>
+                    <h2>Meu Carrinho</h2>
+                    <span class="item-count">({{ carrinho|length }} itens)</span>
+                </div>
+
+                <div class="cart-items">
+                    {% if carrinho %}
+                    {% for item in carrinho %}
+                    <div class="cart-item">
+                        <div class="item-image">
+                            <div class="image-placeholder">
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+                                    <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+                                    <line x1="6" y1="1" x2="6" y2="4"></line>
+                                    <line x1="10" y1="1" x2="10" y2="4"></line>
+                                    <line x1="14" y1="1" x2="14" y2="4"></line>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="item-details">
+                            <h3>{{ item.nome }}</h3>
+                            <p class="item-description">{{ item.descricao }}</p>
+                            <div class="item-options">
+                                <span class="option-badge">ID {{ item.id }}</span>
+                                <div class="item-quantity">
+                                    <form method="POST" action="/carrinho/diminuir/{{ item.id }}" style="display: inline;">
+                                        <button type="submit" class="qty-btn">-</button>
+                                    </form>
+                                    <input type="number" class="qty-input" id="qty-{{ item.id }}" value="{{ item.quantidade }}" min="1" readonly>
+                                    <form method="POST" action="/carrinho/aumentar/{{ item.id }}" style="display: inline;">
+                                        <button type="submit" class="qty-btn">+</button>
+                                    </form>
+                                </div>
+                                <form method="POST" action="/carrinho/remover/{{ item.id }}" style="display: inline; margin-left: 10px;">
+                                    <button type="submit" class="remove-btn" onclick="return confirm('Deseja remover este item do carrinho?')" style="background: none; border: none; color: #dc3545; cursor: pointer; padding: 5px;">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                                        </svg>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="item-price">
+                            <span class="unit-price">Unitario</span>
+                            <span class="total-price" id="total-{{ item.id }}" data-unit-price="{{ item.preco }}">R$ {{ '%.2f'|format(item.total) }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <p class="item-description">Seu carrinho esta vazio.</p>
+                    {% endif %}
+                </div>
+
+                <!-- Continuar as Compras -->
+                <div class="continue-shopping">
+                    <a href="/menu" class="continue-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                        Continuar Comprando
+                    </a>
+                </div>
+            </div>
+
+            <!-- Coluna Direita -->
+            <div class="order-summary-section">
+                <div class="order-summary-card">
+                    <h2>Resumo do Pedido</h2>
+
+                    <!-- Opções de Delivery -->
+                    <div class="delivery-options">
+                        <h3>Tipo de Entrega</h3>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="delivery" value="pickup" checked onchange="updateDelivery()">
+                                <div class="radio-content">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                                    </svg>
+                                    <div>
+                                        <strong>Retirada</strong>
+                                        <span>Grátis - Pronto em 15-20 min</span>
+                                    </div>
+                                </div>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="delivery" value="delivery" onchange="updateDelivery()">
+                                <div class="radio-content">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="1" y="3" width="15" height="13"></rect>
+                                        <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                                        <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                                        <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                                    </svg>
+                                    <div>
+                                        <strong>Delivery</strong>
+                                        <span>R$ 8,00 - 30-40 min</span>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Preço -->
+                    <div class="price-breakdown">
+                        <div class="price-row">
+                            <span>Subtotal</span>
+                            <span id="subtotal-price">R$ {{ '%.2f'|format(subtotal) }}</span>
+                        </div>
+                        <div class="price-row">
+                            <span>Taxa de Entrega</span>
+                            <span id="delivery-fee">R$ 0,00</span>
+                        </div>
+                        <div class="price-row discount">
+                            <span>
+                                Desconto
+                                <span class="discount-badge">-</span>
+                            </span>
+                            <span class="discount-value">R$ 0,00</span>
+                        </div>
+                        <div class="price-divider"></div>
+                        <div class="price-row total">
+                            <span>Total</span>
+                            <span id="total-price">R$ {{ '%.2f'|format(subtotal) }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Cupom -->
+                    <div class="coupon-section">
+                        <h3>Cupom de Desconto</h3>
+                        <div class="coupon-input-group">
+                            <input type="text" placeholder="Digite seu cupom" class="coupon-input" id="coupon-code">
+                            <button class="apply-coupon-btn" onclick="applyCoupon()">Aplicar</button>
+                        </div>
+                    </div>
+
+                    <!-- Informações Cliente -->
+                    <div class="customer-info-section">
+                        <h3>Informações de Contato</h3>
+                        <form class="customer-form">
+                            <div class="form-group">
+                                <label>Nome Completo *</label>
+                                <input type="text" placeholder="Digite seu nome" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Telefone *</label>
+                                <input type="tel" placeholder="(11) 99999-9999" required>
+                            </div>
+                            <div class="form-group">
+                                <label>E-mail</label>
+                                <input type="email" placeholder="seu@email.com">
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Endereço para Entrega -->
+                    <div class="delivery-address-section" id="delivery-address" style="display: none;">
+                        <h3>Endereço de Entrega</h3>
+                        <form class="address-form">
+                            <div class="form-group">
+                                <label>CEP *</label>
+                                <input type="text" placeholder="00000-000" required>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Rua *</label>
+                                    <input type="text" placeholder="Nome da rua" required>
+                                </div>
+                                <div class="form-group small">
+                                    <label>Número *</label>
+                                    <input type="text" placeholder="123" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Complemento</label>
+                                <input type="text" placeholder="Apto, Bloco, etc.">
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Bairro *</label>
+                                    <input type="text" placeholder="Bairro" required>
+                                </div>
+                                <div class="form-group small">
+                                    <label>Cidade *</label>
+                                    <input type="text" placeholder="Cidade" required>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Método de Pagamento -->
+                    <div class="payment-section">
+                        <h3>Forma de Pagamento</h3>
+                        <div class="payment-options">
+                            <label class="payment-option">
+                                <input type="radio" name="payment" value="credit" checked>
+                                <div class="payment-content">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                                        <line x1="1" y1="10" x2="23" y2="10"></line>
+                                    </svg>
+                                    <span>Cartão de Crédito</span>
+                                </div>
+                            </label>
+                            <label class="payment-option">
+                                <input type="radio" name="payment" value="debit">
+                                <div class="payment-content">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                                        <line x1="1" y1="10" x2="23" y2="10"></line>
+                                    </svg>
+                                    <span>Cartão de Débito</span>
+                                </div>
+                            </label>
+                            <label class="payment-option">
+                                <input type="radio" name="payment" value="pix">
+                                <div class="payment-content">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                                        <path d="M12 8v8"></path>
+                                        <path d="M8 12h8"></path>
+                                    </svg>
+                                    <span>PIX</span>
+                                </div>
+                            </label>
+                            <label class="payment-option">
+                                <input type="radio" name="payment" value="cash">
+                                <div class="payment-content">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="12" y1="1" x2="12" y2="23"></line>
+                                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                                    </svg>
+                                    <span>Dinheiro</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Notas do Pedido -->
+                    <div class="order-notes-section">
+                        <h3>Observações do Pedido</h3>
+                        <textarea class="order-notes" placeholder="Alguma observação sobre seu pedido? (opcional)"></textarea>
+                    </div>
+
+                    <!-- Botão de Checkout -->
+                    <button class="checkout-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        Finalizar Pedido
+                    </button>
+
+                    <!-- Segurança -->
+                    <div class="security-notice">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                        <span>Pagamento seguro e criptografado</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="cart-footer">
+        <div class="footer-content">
+            <p>&copy; 2025 Café Artesanal. Todos os direitos reservados.</p>
+            <div class="footer-links">
+                <a href="/">Início</a>
+                <a href="/menu">Cardápio</a>
+                <a href="/perfil">Perfil</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Atualizar preço total
+        function updateDelivery() {
+            const deliveryType = document.querySelector('input[name="delivery"]:checked').value;
+            const deliveryFeeElement = document.getElementById('delivery-fee');
+            const totalElement = document.getElementById('total-price');
+            const addressSection = document.getElementById('delivery-address');
+            
+            let deliveryFee = 0;
+            if (deliveryType === 'delivery') {
+                deliveryFee = 8.00;
+                addressSection.style.display = 'block';
+            } else {
+                addressSection.style.display = 'none';
+            }
+            
+            deliveryFeeElement.textContent = 'R$ ' + deliveryFee.toFixed(2).replace('.', ',');
+
+            const subtotalText = document.getElementById('subtotal-price').textContent
+                .replace('R$ ', '')
+                .replace(',', '.');
+            const subtotal = parseFloat(subtotalText) || 0;
+            const total = subtotal + deliveryFee;
+            totalElement.textContent = 'R$ ' + total.toFixed(2).replace('.', ',');
+        }
+
+        // Aumentar Quantidade
+        function increaseQuantity(itemId) {
+            const input = document.getElementById('qty-' + itemId);
+            input.value = parseInt(input.value) + 1;
+            updateItemTotal(itemId);
+        }
+
+        // Diminuir Quantidade
+        function decreaseQuantity(itemId) {
+            const input = document.getElementById('qty-' + itemId);
+            if (parseInt(input.value) > 1) {
+                input.value = parseInt(input.value) - 1;
+                updateItemTotal(itemId);
+            }
+        }
+
+        // Atualizar total de items
+        function updateItemTotal(itemId) {
+            const qtyInput = document.getElementById('qty-' + itemId);
+            const totalElement = document.getElementById('total-' + itemId);
+            const quantity = parseInt(qtyInput.value);
+            const unitPrice = parseFloat(totalElement.getAttribute('data-unit-price'));
+            
+            const newTotal = unitPrice * quantity;
+            totalElement.textContent = 'R$ ' + newTotal.toFixed(2).replace('.', ',');
+            
+            updateSubtotal();
+        }
+
+        // Atualizar subtotal geral
+        function updateSubtotal() {
+            const totalElements = document.querySelectorAll('[id^="total-"]');
+            let subtotal = 0;
+            
+            totalElements.forEach(element => {
+                const priceText = element.textContent.replace('R$ ', '').replace(',', '.');
+                subtotal += parseFloat(priceText);
+            });
+            
+            const subtotalElement = document.getElementById('subtotal-price');
+            const deliveryFeeElement = document.getElementById('delivery-fee');
+            const totalElement = document.getElementById('total-price');
+            
+            subtotalElement.textContent = 'R$ ' + subtotal.toFixed(2).replace('.', ',');
+            
+            const deliveryFeeText = deliveryFeeElement.textContent.replace('R$ ', '').replace(',', '.');
+            const deliveryFee = parseFloat(deliveryFeeText) || 0;
+            const total = subtotal + deliveryFee;
+            
+            totalElement.textContent = 'R$ ' + total.toFixed(2).replace('.', ',');
+        }
+
+        // Remover item
+        function removeItem(itemId) {
+            if (confirm('Deseja remover este item do carrinho?')) {
+                console.log('Removing item ' + itemId);
+            }
+        }
+
+        // Aplicar cupom
+        function applyCoupon() {
+            const couponCode = document.getElementById('coupon-code').value;
+            if (couponCode) {
+                alert('Cupom "' + couponCode + '" aplicado com sucesso!');
+            } else {
+                alert('Por favor, digite um código de cupom.');
+            }
+        }
+    </script>
+</body>
+</html>
